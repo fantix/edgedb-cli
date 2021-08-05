@@ -136,7 +136,16 @@ pub fn binary_path() -> anyhow::Result<PathBuf> {
 }
 
 pub fn data_dir() -> anyhow::Result<PathBuf> {
-    Ok(dirs::data_dir()
-        .ok_or_else(|| anyhow::anyhow!("Can't determine data directory"))?
-        .join("edgedb").join("data"))
+    let dir = if cfg!(windows) {
+        dirs::data_local_dir()
+            .context("Can't determine local data directory")?
+            .join("EdgeDB")
+            .join("data")
+    } else {
+        dirs::data_local_dir()
+            .context("Can't determine data directory")?
+            .join("edgedb")
+            .join("data")
+    };
+    Ok(dir)
 }
